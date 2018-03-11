@@ -33,5 +33,8 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+*.dll
+*.mdb
 
+Library/
 Library/

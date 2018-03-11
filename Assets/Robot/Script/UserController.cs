@@ -14,7 +14,7 @@ public class UserController : MonoBehaviour {
 	{
 		Animator animator = GetComponent<Animator> ();
 		layerMask = 1 <<  LayerMask.NameToLayer("ground");
-		locomotion = new Locomotion (animator, 1.0f);
+		locomotion = new Locomotion (animator, 2.0f, 5.0f);
 		iKMotion = new IKMotion (animator);
 	}
 	
