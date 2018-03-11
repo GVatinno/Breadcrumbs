@@ -25,7 +25,7 @@ public class IKMotion
 
 	public void IKPass () 
 	{
-		mAnimator.SetLookAtPosition(Vector3.LerpUnclamped(mPrevTarget, mTarget, mWeight));
+		mAnimator.SetLookAtPosition(Vector3.Lerp(mPrevTarget, mTarget, mWeight));
 		mAnimator.SetLookAtWeight (1.0f);
 		mWeight += 0.01f;
 	}
