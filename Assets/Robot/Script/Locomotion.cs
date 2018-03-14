@@ -7,92 +7,106 @@ public class Locomotion
 	private Animator mAnimator = null;
 	private Transform mTransform = null;
 	private float mSqrtRadius = 0.0f;
-	private float mSqrtRunRadius = 0.0f;
 	private float mSqrtArrivalRadius = 0.0f;
-	private bool mIsMoving = false;
-	private float angleLeftRight = 0.0f;
 
-	private int mWalkParameter;
-	private int mTurnParameter;
+	private int mAngleLeftFRightParameter;
 	private int mAngleLeftRightParameter;
-	private int mRunParameter;
+	private int mSpeedFParameter;
 	private int mSpeedParameter;
 
+	private Vector3 mLastTarget;
+	private float mLerpValue = 0.0f;
+	private float mSpeed = 0.0f;
+	private float mAcceleration = 0.5f;
 
-	private Vector3 lastTarget;
-	private float lerpValue = 0.0f;
-
-	public Locomotion(Animator animator, float arrivalRadius, float runRadius)
+	public Locomotion(Animator animator, float arrivalRadius)
 	{
 		mAnimator = animator;
-		mWalkParameter = Animator.StringToHash ("walk");
+		mAngleLeftFRightParameter = Animator.StringToHash ("angleLeftRightf");
 		mAngleLeftRightParameter = Animator.StringToHash ("angleLeftRight");
-		mTurnParameter = Animator.StringToHash ("turn");
-		mRunParameter = Animator.StringToHash ("run");
+		mSpeedFParameter = Animator.StringToHash ("speedf");
+		mSpeedParameter = Animator.StringToHash ("speed");
 		mSqrtRadius = arrivalRadius * arrivalRadius;
-		mSqrtRunRadius = runRadius * runRadius;
-		Debug.Assert (mSqrtRunRadius > mSqrtRadius);
+
 		mSqrtArrivalRadius = mSqrtRadius * 0.2f;
 		mTransform = animator.GetComponent<Transform> ();
-		mIsMoving = false;
-		lerpValue = 0.0f;
-
-		// fix arrival
+		mLerpValue = 0.0f;
 	}
 
 	public void MoveTo(Vector3 position)
 	{
-		lastTarget = position;
-		lerpValue = 0.0f;
+		mLastTarget = position;
+		mLerpValue = 0.0f;
 	}
 
 	public void Update()
 	{
-		mAnimator.SetBool (mWalkParameter, false);
-		mAnimator.SetBool (mTurnParameter, false);
-		mAnimator.SetBool (mRunParameter, false);
+		SetAnimatorSpeed (0.0f);
+		SetAnimatorAngles (0.0f);
 
-		Vector3 targetDirection = (lastTarget - mTransform.position).normalized;
+		Vector3 targetDirection = (mLastTarget - mTransform.position).normalized;
 		float angle = Vector3.Dot(targetDirection, mTransform.forward);
 		float direction = Mathf.Sign(Vector3.Dot(Vector3.Cross (targetDirection, mTransform.forward).normalized, mTransform.up));
-		angleLeftRight = angle * direction;
+		float angleLeftRight = angle * direction;
 
 		if (angle >= 0.0f)
 		{
-			mAnimator.SetBool (mTurnParameter, false);
-			// the target is in front of the agent
-			float sqrtDistance = (mTransform.position - lastTarget).sqrMagnitude;
+			float sqrtDistance = (mTransform.position - mLastTarget).sqrMagnitude;
 			if (sqrtDistance > mSqrtRadius) 
 			{
-				Move (sqrtDistance, angle, direction, sqrtDistance > mSqrtRunRadius );
+				
+				mSpeed = Mathf.Clamp(mSpeed + mAcceleration * Time.deltaTime, 0.0f, 1.0f);
+				SetAnimatorSpeed (mSpeed);
+				RotateWhileMoving (targetDirection);
 			}
 			else
 			{
-				if (sqrtDistance < mSqrtArrivalRadius ) 
+				if (sqrtDistance < mSqrtArrivalRadius) 
 				{
-					mIsMoving = false;
-				}
-				else
+					mSpeed = 0.0f;
+					SetAnimatorSpeed (mSpeed);
+				} 
+				else 
 				{
-					Move (sqrtDistance, angle, direction, false);
+					mSpeed = Mathf.Clamp ((sqrtDistance / mSqrtRadius), 0.0f, 1.0f);
+					SetAnimatorSpeed (mSpeed);
+					RotateWhileMoving (targetDirection);
 				}
+
 			}
+
 		}
 		else 
 		{
-			mAnimator.SetBool (mTurnParameter, true);
-			mAnimator.SetFloat (mAngleLeftRightParameter, angleLeftRight);
+			if (mSpeed > 0.0f) 
+			{
+				mSpeed = Mathf.Clamp (mSpeed - mAcceleration * 2.0f * Time.deltaTime, 0.0f, 1.0f);
+				SetAnimatorSpeed (mSpeed);
+			} 
+			else 
+			{
+				SetAnimatorAngles (angleLeftRight);
+			}
 		}
-		lerpValue += 0.01f;
+		mLerpValue += 0.5f * Time.deltaTime;
 
 	}
 
-	void Move( float sqrtDistance, float angle, float direction, bool run)
+	void RotateWhileMoving(Vector3 targetDirection)
 	{
-		mIsMoving = true;
-		mAnimator.SetBool (mWalkParameter, ! run);
-		mAnimator.SetBool (mRunParameter, run);
-		mTransform.rotation *= Quaternion.SlerpUnclamped(Quaternion.identity, Quaternion.AngleAxis (Mathf.Acos(angle)*direction, -Vector3.up), lerpValue);
+		mTransform.rotation = Quaternion.RotateTowards(mTransform.rotation, Quaternion.LookRotation(targetDirection, Vector3.up), mLerpValue);
+	}
+
+	void SetAnimatorSpeed( float speed)
+	{
+		mAnimator.SetFloat (mSpeedFParameter, speed);
+		mAnimator.SetInteger (mSpeedParameter, (int)(speed * 1000.0f));
+	}
+
+	void SetAnimatorAngles( float angles)
+	{
+		mAnimator.SetFloat (mAngleLeftFRightParameter, angles);
+		mAnimator.SetInteger (mAngleLeftRightParameter, (int)(angles * 1000.0f));
 	}
 
 }

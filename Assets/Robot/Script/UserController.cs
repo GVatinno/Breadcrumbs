@@ -14,7 +14,7 @@ public class UserController : MonoBehaviour {
 	{
 		Animator animator = GetComponent<Animator> ();
 		layerMask = 1 <<  LayerMask.NameToLayer("ground");
-		locomotion = new Locomotion (animator, 2.0f, 5.0f);
+		locomotion = new Locomotion (animator, 2.0f);
 		iKMotion = new IKMotion (animator);
 	}
 	
@@ -45,6 +45,6 @@ public class UserController : MonoBehaviour {
 	void OnDrawGizmos()
 	{
 		Gizmos.color = Color.red;
-		Gizmos.DrawWireSphere(target, 1.0f);
+		Gizmos.DrawWireSphere(target, 2.0f);
 	}
 }
