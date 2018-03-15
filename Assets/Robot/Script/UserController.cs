@@ -6,8 +6,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Animator))]
 public class UserController : MonoBehaviour {
 		
-	Locomotion locomotion = null;
-	IKMotion iKMotion = null;
+	AIMotion mAIMotion = null;
 	int layerMask = 0;
 	Vector3 target;
 
@@ -15,8 +14,7 @@ public class UserController : MonoBehaviour {
 	{
 		Animator animator = GetComponent<Animator> ();
 		layerMask = 1 <<  LayerMask.NameToLayer("ground");
-		locomotion = new Locomotion (animator, 2.0f);
-		iKMotion = new IKMotion (animator);
+		mAIMotion = new AIMotion (new Locomotion (animator, 2.0f), new IKMotion (animator));
 	}
 	
 
@@ -29,17 +27,17 @@ public class UserController : MonoBehaviour {
 			if (Physics.Raycast (ray, out info, 100.0f, layerMask)) 
 			{
 				target = info.point;
-				locomotion.MoveTo (target);
-				iKMotion.SetTarget (target);
+				Debug.Log (target);
+				mAIMotion.SetTarget (target);
 			}
 
 		}
-		locomotion.Update ();
+		mAIMotion.Update ();
 	}
 
 	void OnAnimatorIK()
 	{
-		iKMotion.IKPass ();
+		mAIMotion.IKPass ();
 	}
 
 	void OnDrawGizmos()

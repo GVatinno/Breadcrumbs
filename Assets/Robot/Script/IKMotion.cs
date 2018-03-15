@@ -27,6 +27,6 @@ public class IKMotion
 	{
 		mAnimator.SetLookAtPosition(Vector3.Lerp(mPrevTarget, mTarget, mWeight));
 		mAnimator.SetLookAtWeight (1.0f);
-		mWeight += 0.01f;
+		mWeight += 0.5f * Time.deltaTime;
 	}
 }

@@ -6,7 +6,7 @@ public class Locomotion
 {
 	private Animator mAnimator = null;
 	private Transform mTransform = null;
-	private float mSqrtRadius = 0.0f;
+	private float mSqrtSlowDownRadius = 0.0f;
 	private float mSqrtArrivalRadius = 0.0f;
 
 	private int mAngleLeftFRightParameter;
@@ -18,23 +18,25 @@ public class Locomotion
 	private float mLerpValue = 0.0f;
 	private float mSpeed = 0.0f;
 	private float mAcceleration = 0.5f;
+	private float mSqrtLastTargetDistance = 0.0f;
 
-	public Locomotion(Animator animator, float arrivalRadius)
+	public Locomotion(Animator animator, float slowDownRadius)
 	{
 		mAnimator = animator;
 		mAngleLeftFRightParameter = Animator.StringToHash ("angleLeftRightf");
 		mAngleLeftRightParameter = Animator.StringToHash ("angleLeftRight");
 		mSpeedFParameter = Animator.StringToHash ("speedf");
 		mSpeedParameter = Animator.StringToHash ("speed");
-		mSqrtRadius = arrivalRadius * arrivalRadius;
+		mSqrtSlowDownRadius = slowDownRadius * slowDownRadius;
 
-		mSqrtArrivalRadius = mSqrtRadius * 0.2f;
+		mSqrtArrivalRadius = mSqrtSlowDownRadius * 0.2f;
 		mTransform = animator.GetComponent<Transform> ();
 		mLerpValue = 0.0f;
 	}
 
 	public void MoveTo(Vector3 position)
 	{
+		Debug.Log (mLastTarget);
 		mLastTarget = position;
 		mLerpValue = 0.0f;
 	}
@@ -49,10 +51,10 @@ public class Locomotion
 		float direction = Mathf.Sign(Vector3.Dot(Vector3.Cross (targetDirection, mTransform.forward).normalized, mTransform.up));
 		float angleLeftRight = angle * direction;
 
+		mSqrtLastTargetDistance = (mTransform.position - mLastTarget).sqrMagnitude;
 		if (angle >= 0.0f)
 		{
-			float sqrtDistance = (mTransform.position - mLastTarget).sqrMagnitude;
-			if (sqrtDistance > mSqrtRadius) 
+			if (mSqrtLastTargetDistance > mSqrtSlowDownRadius) 
 			{
 				
 				mSpeed = Mathf.Clamp(mSpeed + mAcceleration * Time.deltaTime, 0.0f, 1.0f);
@@ -61,14 +63,14 @@ public class Locomotion
 			}
 			else
 			{
-				if (sqrtDistance < mSqrtArrivalRadius) 
+				if (mSqrtLastTargetDistance < mSqrtArrivalRadius) 
 				{
 					mSpeed = 0.0f;
 					SetAnimatorSpeed (mSpeed);
 				} 
 				else 
 				{
-					mSpeed = Mathf.Clamp ((sqrtDistance / mSqrtRadius), 0.0f, 1.0f);
+					mSpeed = Mathf.Clamp ((mSqrtLastTargetDistance / mSqrtSlowDownRadius), 0.0f, 1.0f);
 					SetAnimatorSpeed (mSpeed);
 					RotateWhileMoving (targetDirection);
 				}
@@ -94,7 +96,7 @@ public class Locomotion
 
 	void RotateWhileMoving(Vector3 targetDirection)
 	{
-		mTransform.rotation = Quaternion.RotateTowards(mTransform.rotation, Quaternion.LookRotation(targetDirection, Vector3.up), mLerpValue);
+		mTransform.rotation = Quaternion.RotateTowards(mTransform.rotation, Quaternion.LookRotation(targetDirection, mTransform.up), mLerpValue);
 	}
 
 	void SetAnimatorSpeed( float speed)
@@ -109,4 +111,13 @@ public class Locomotion
 		mAnimator.SetInteger (mAngleLeftRightParameter, (int)(angles * 1000.0f));
 	}
 
+	public Transform GetTransform()
+	{
+		return mTransform;
+	}
+
+	public bool IsInSlowDownRadius()
+	{
+		return mSqrtLastTargetDistance <= mSqrtSlowDownRadius;
+	}
 }
