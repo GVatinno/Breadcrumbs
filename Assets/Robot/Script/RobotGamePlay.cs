@@ -12,8 +12,9 @@ public class RobotGamePlay
 		mAImotion = AImotion;
 		mAnimator = animator;
 		mBumpParameter = Animator.StringToHash ("gameplay_bump");
+
 		AnimationEventHandler animH = animator.GetComponent<AnimationEventHandler> ();
-		animH.AddAnimationEvent (mAnimator, 1, 1.10f, "Bump", OnBumpEnd);
+		animH.AddAnimationEvent ((int)EventType.ROBOT_GAMEPLAY_BUMP, 1.10f, "Bump" , OnBumpEnd);
 	}
 
 	public void OnTriggerEnter(Collider other) 

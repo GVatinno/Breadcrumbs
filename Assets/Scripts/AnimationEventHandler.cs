@@ -2,37 +2,41 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Animator))]
 public class AnimationEventHandler : MonoBehaviour
 {
-	public Dictionary<int, List<Action>> eventIDCallbackMap;
+	public Dictionary<int, List<Action>> mEventIDCallbackMap;
+
+	Animator mAnim;
 
 	void Start()
 	{
-		eventIDCallbackMap = new Dictionary<int, List<Action>> ();
+		mEventIDCallbackMap = new Dictionary<int, List<Action>> ();
+		mAnim = GetComponent<Animator> ();
 	}
 
-	public void AddAnimationEvent( Animator anim, int eventId, float time, string state, Action callback)
+	public void AddAnimationEvent( int eventId, float time, string state, Action callback)
 	{
-		AnimationClip c = FindAnimationClip (anim, state);
+		AnimationClip c = FindAnimationClip (state);
 		Debug.Assert (c != null, "Cannot find animation clip in Animator");
 		AnimationEvent e = new AnimationEvent ();
 		e.intParameter = eventId;
 		e.functionName = "OnAnimationEvent";
 		e.time = time;
 		c.AddEvent (e);
-		if (eventIDCallbackMap.ContainsKey (eventId))
+		if (mEventIDCallbackMap.ContainsKey (eventId))
 		{
-			eventIDCallbackMap [eventId].Add (callback);
+			mEventIDCallbackMap [eventId].Add (callback);
 		} 
 		else
 		{
-			eventIDCallbackMap [eventId] = new List<Action> { callback };
+			mEventIDCallbackMap [eventId] = new List<Action> { callback };
 		}
 	}
 
-	AnimationClip FindAnimationClip( Animator anim, string state )
+	AnimationClip FindAnimationClip( string state )
 	{
-		foreach (AnimationClip c in anim.runtimeAnimatorController.animationClips)
+		foreach (AnimationClip c in mAnim.runtimeAnimatorController.animationClips)
 		{
 			Debug.Log (c.name);
 			if (c.name == state)
@@ -45,9 +49,9 @@ public class AnimationEventHandler : MonoBehaviour
 
 	void OnAnimationEvent( int eventId )
 	{
-		if (eventIDCallbackMap.ContainsKey (eventId))
+		if (mEventIDCallbackMap.ContainsKey (eventId))
 		{
-			foreach (var action in eventIDCallbackMap[eventId])
+			foreach (var action in mEventIDCallbackMap[eventId])
 			{
 				action ();
 			}
