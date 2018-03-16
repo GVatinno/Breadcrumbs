@@ -90,7 +90,7 @@ public class Locomotion
 				SetAnimatorAngles (angleLeftRight);
 			}
 		}
-		mLerpValue += 0.9f * Time.deltaTime;
+		mLerpValue += 2.0f * Time.deltaTime;
 
 	}
 
