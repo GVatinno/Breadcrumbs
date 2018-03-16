@@ -22,7 +22,13 @@ public class AIMotion
 	{
 		mCurrentWayPointIndex = 0;
 		mLastPath = new NavMeshPath ();
-		if (NavMesh.CalculatePath (mTransform.position, target, NavMesh.AllAreas, mLastPath)) 
+		Vector3 position = mTransform.position; 
+		if (mLocomotion.IsMoving () && !mLocomotion.IsInSlowDownRadius())
+		{
+			position += mTransform.forward * mLocomotion.GetSqrtSlowingDownRadius (); 
+		}
+
+		if (NavMesh.CalculatePath (position, target, NavMesh.AllAreas, mLastPath)) 
 		{
 			if (mLastPath.corners.Length > 0 ) 
 			{
@@ -61,12 +67,6 @@ public class AIMotion
 		mLocomotion.Update ();
 		if ( mLocomotion.IsInSlowDownRadius () )
 		{ 
-			if (mLastPath != null)
-			{
-				//Debug.Log (mLastPath.status);
-			}
-				
-
 			if (SetNextWayPointIndex ())
 			{
 				SetTargetWayPoint (mCurrentWayPointIndex);
@@ -78,5 +78,16 @@ public class AIMotion
 	public void IKPass()
 	{
 		mIKMotion.IKPass ();
+	}
+
+	public void DrawGizmo()
+	{
+		if (mLastPath != null)
+		{
+			foreach (Vector3 v in mLastPath.corners)
+			{
+				Gizmos.DrawWireCube (v, new Vector3 (0.2f, 0.2f, 0.2f));
+			}
+		}		
 	}
 }

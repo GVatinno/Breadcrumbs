@@ -90,7 +90,7 @@ public class Locomotion
 				SetAnimatorAngles (angleLeftRight);
 			}
 		}
-		mLerpValue += 0.5f * Time.deltaTime;
+		mLerpValue += 0.9f * Time.deltaTime;
 
 	}
 
@@ -119,5 +119,15 @@ public class Locomotion
 	public bool IsInSlowDownRadius()
 	{
 		return mSqrtLastTargetDistance <= mSqrtSlowDownRadius;
+	}
+
+	public bool IsMoving()
+	{
+		return mSpeed > 0;
+	}
+
+	public float GetSqrtSlowingDownRadius()
+	{
+		return mSqrtSlowDownRadius;
 	}
 }
