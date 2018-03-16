@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(AnimationEventHandler))]
 [RequireComponent(typeof(Animator))]
 public class UserController : MonoBehaviour {
 		
 	AIMotion mAIMotion = null;
+	RobotGamePlay mRobotGamePlay = null;
 	int layerMask = 0;
 	Vector3 target;
 
@@ -15,6 +17,7 @@ public class UserController : MonoBehaviour {
 		Animator animator = GetComponent<Animator> ();
 		layerMask = 1 <<  LayerMask.NameToLayer("ground");
 		mAIMotion = new AIMotion (new Locomotion (animator, 2.0f), new IKMotion (animator));
+		mRobotGamePlay = new RobotGamePlay (mAIMotion, animator);
 	}
 	
 
@@ -44,6 +47,16 @@ public class UserController : MonoBehaviour {
 	{
 		Gizmos.color = Color.red;
 		Gizmos.DrawWireSphere(target, 2.0f);
-		mAIMotion.DrawGizmo ();
+		if (mAIMotion != null)
+		{
+			mAIMotion.DrawGizmo ();
+		}
 	}
+
+	public void OnTriggerEnter(Collider other) 
+	{
+		mRobotGamePlay.OnTriggerEnter (other);
+	}
+
+
 }

@@ -80,13 +80,26 @@ public class AIMotion
 		mIKMotion.IKPass ();
 	}
 
+	public void Stop()
+	{
+		mLastPath = null;
+		mLocomotion.Stop ();
+		mIKMotion.SetTarget (mTransform.position);
+
+	}
+
 	public void DrawGizmo()
 	{
 		if (mLastPath != null)
 		{
-			foreach (Vector3 v in mLastPath.corners)
+			for (uint i = 0; i < mLastPath.corners.Length; ++i)
 			{
-				Gizmos.DrawWireCube (v, new Vector3 (0.2f, 0.2f, 0.2f));
+				if (i == mCurrentWayPointIndex)
+				{
+					Gizmos.color = Color.yellow;
+				}
+				Gizmos.DrawWireCube (mLastPath.corners[i], new Vector3 (0.2f, 0.2f, 0.2f));
+				Gizmos.color = Color.red;
 			}
 		}		
 	}

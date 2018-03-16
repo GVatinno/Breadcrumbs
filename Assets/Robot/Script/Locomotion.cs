@@ -41,6 +41,12 @@ public class Locomotion
 		mLerpValue = 0.0f;
 	}
 
+	public void Stop()
+	{
+		mSpeed = 0.0f;
+		MoveTo (mTransform.position);
+	}
+
 	public void Update()
 	{
 		SetAnimatorSpeed (0.0f);
@@ -90,7 +96,7 @@ public class Locomotion
 				SetAnimatorAngles (angleLeftRight);
 			}
 		}
-		mLerpValue += 2.0f * Time.deltaTime;
+		mLerpValue += (mSpeed + 2.0f) * Time.deltaTime;
 
 	}
 
