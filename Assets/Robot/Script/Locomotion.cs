@@ -136,4 +136,10 @@ public class Locomotion
 	{
 		return mSqrtSlowDownRadius;
 	}
+
+	public void DrawGizmo()
+	{
+		Gizmos.color = Color.blue;
+		Gizmos.DrawWireSphere(mLastTarget, 0.8f);
+	}
 }

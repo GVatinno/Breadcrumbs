@@ -45,8 +45,6 @@ public class UserController : MonoBehaviour {
 
 	void OnDrawGizmos()
 	{
-		Gizmos.color = Color.red;
-		Gizmos.DrawWireSphere(target, 2.0f);
 		if (mAIMotion != null)
 		{
 			mAIMotion.DrawGizmo ();

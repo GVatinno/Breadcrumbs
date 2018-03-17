@@ -101,6 +101,15 @@ public class AIMotion
 				Gizmos.DrawWireCube (mLastPath.corners[i], new Vector3 (0.2f, 0.2f, 0.2f));
 				Gizmos.color = Color.red;
 			}
-		}		
+			if (mLastPath.corners.Length > 0)
+			{
+				Gizmos.color = Color.red;
+				Gizmos.DrawWireSphere (mLastPath.corners[mLastPath.corners.Length-1], 1.0f);
+			}
+		}
+		if (mLocomotion != null ) 
+		{
+			mLocomotion.DrawGizmo ();
+		}
 	}
 }
