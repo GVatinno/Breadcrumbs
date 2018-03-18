@@ -15,7 +15,6 @@ public class Locomotion
 	private int mSpeedParameter;
 
 	private Vector3 mLastTarget;
-	private float mLerpValue = 0.0f;
 	private float mSpeed = 0.0f;
 	private float mAcceleration = 0.5f;
 	private float mSqrtLastTargetDistance = 0.0f;
@@ -31,14 +30,11 @@ public class Locomotion
 
 		mSqrtArrivalRadius = mSqrtSlowDownRadius * 0.2f;
 		mTransform = animator.GetComponent<Transform> ();
-		mLerpValue = 0.0f;
 	}
 
 	public void MoveTo(Vector3 position)
 	{
-		Debug.Log (mLastTarget);
 		mLastTarget = position;
-		mLerpValue = 0.0f;
 	}
 
 	public void Stop()
@@ -58,7 +54,7 @@ public class Locomotion
 		float angleLeftRight = angle * direction;
 
 		mSqrtLastTargetDistance = (mTransform.position - mLastTarget).sqrMagnitude;
-		if (angle >= 0.0f)
+		if (angle > 0.8f)
 		{
 			if (mSqrtLastTargetDistance > mSqrtSlowDownRadius) 
 			{
@@ -84,7 +80,7 @@ public class Locomotion
 			}
 
 		}
-		else 
+		else if ( angle < 0.0f || angle > 0.0f )
 		{
 			if (mSpeed > 0.0f) 
 			{
@@ -93,16 +89,20 @@ public class Locomotion
 			} 
 			else 
 			{
-				SetAnimatorAngles (angleLeftRight);
+				if (angle > 0.0f) {
+					SetAnimatorAngles (-angleLeftRight);
+				}
+				else {
+					SetAnimatorAngles (angleLeftRight);
+				}
+
 			}
 		}
-		mLerpValue += (mSpeed + 2.0f) * Time.deltaTime;
-
 	}
 
 	void RotateWhileMoving(Vector3 targetDirection)
 	{
-		mTransform.rotation = Quaternion.RotateTowards(mTransform.rotation, Quaternion.LookRotation(targetDirection, mTransform.up), mLerpValue);
+		mTransform.rotation = Quaternion.RotateTowards(mTransform.rotation, Quaternion.LookRotation(targetDirection, mTransform.up), Time.deltaTime * 100.0f * mSpeed);
 	}
 
 	void SetAnimatorSpeed( float speed)
@@ -127,6 +127,11 @@ public class Locomotion
 		return mSqrtLastTargetDistance <= mSqrtSlowDownRadius;
 	}
 
+	public bool IsInArrivalRadius()
+	{
+		return mSqrtLastTargetDistance <= mSqrtArrivalRadius;
+	}
+
 	public bool IsMoving()
 	{
 		return mSpeed > 0;
@@ -135,6 +140,11 @@ public class Locomotion
 	public float GetSqrtSlowingDownRadius()
 	{
 		return mSqrtSlowDownRadius;
+	}
+
+	public float GetSqrtArrivalRadius()
+	{
+		return mSqrtArrivalRadius;
 	}
 
 	public void DrawGizmo()

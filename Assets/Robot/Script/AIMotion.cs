@@ -25,7 +25,7 @@ public class AIMotion
 		Vector3 position = mTransform.position; 
 		if (mLocomotion.IsMoving () && !mLocomotion.IsInSlowDownRadius())
 		{
-			position += mTransform.forward * mLocomotion.GetSqrtSlowingDownRadius (); 
+			position += mTransform.forward * mLocomotion.GetSqrtSlowingDownRadius(); 
 		}
 
 		if (NavMesh.CalculatePath (position, target, NavMesh.AllAreas, mLastPath)) 
