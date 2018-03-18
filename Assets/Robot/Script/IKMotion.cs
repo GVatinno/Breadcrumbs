@@ -18,6 +18,8 @@ public class IKMotion
 	
 	public void SetTarget( Vector3 target )
 	{
+		Transform head = mAnimator.GetBoneTransform (HumanBodyBones.Head);
+		target.y = head.position.y;
 		mPrevTarget = mTarget;
 		mTarget = target;
 		mWeight = 0.0f;
@@ -25,6 +27,7 @@ public class IKMotion
 
 	public void IKPass () 
 	{
+		
 		mAnimator.SetLookAtPosition(Vector3.Lerp(mPrevTarget, mTarget, mWeight));
 		mAnimator.SetLookAtWeight (1.0f);
 		mWeight += 0.5f * Time.deltaTime;
